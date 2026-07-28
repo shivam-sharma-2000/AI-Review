@@ -38,6 +38,15 @@ export async function getBusiness(id: string): Promise<Business | null> {
   return data as Business;
 }
 
+export async function listBusinesses(): Promise<Business[]> {
+  const res = await fetch("/api/businesses");
+  const data = await res.json().catch(() => ([]));
+  if (!res.ok) {
+    throw new Error(data.error || "Couldn't load the businesses. Please try again.");
+  }
+  return data as Business[];
+}
+
 export function getReviewUrl(businessId: string): string {
   if (typeof window === "undefined") return `/review/${businessId}`;
   return `${window.location.origin}/review/${businessId}`;

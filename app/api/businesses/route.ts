@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { saveBusinessServer } from "@/lib/server/business-repo";
+import { saveBusinessServer, listBusinessesServer } from "@/lib/server/business-repo";
 import { slugifyBusinessId } from "@/lib/slug";
 import type { Business } from "@/lib/types";
 
@@ -52,3 +52,17 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export async function GET() {
+  try {
+    const list = await listBusinessesServer();
+    return NextResponse.json(list);
+  } catch (error) {
+    console.error("list businesses error:", error);
+    return NextResponse.json(
+      { error: "Couldn't load the businesses. Please try again." },
+      { status: 500 }
+    );
+  }
+}
+

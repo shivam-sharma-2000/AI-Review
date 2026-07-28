@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -27,6 +27,12 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <Button asChild variant="ghost" size="sm">
+            <Link href="/businesses" className="flex items-center gap-1.5">
+              <Building2 className="size-4" />
+              <span className="hidden sm:inline">Businesses</span>
+            </Link>
+          </Button>
           <ThemeToggle />
           <Button asChild size="sm" className="hidden sm:inline-flex">
             <Link href="/setup">Get Started</Link>
