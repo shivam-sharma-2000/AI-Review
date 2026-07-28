@@ -1,70 +1,93 @@
 import "server-only";
-import { promises as fs } from "fs";
-import path from "path";
+import { createClient } from "@supabase/supabase-js";
 import type { Business } from "@/lib/types";
 
+// Initialize Supabase client
+// For server-side operations, we ideally use a service role key to bypass RLS,
+// but anon key works if RLS is properly configured for public access or disabled.
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+
 /**
- * Server-side persistence for business profiles, stored as JSON on disk.
- *
- * This replaces the earlier localStorage-based approach, which only ever
- * worked on the single browser/device that created the business — a QR
- * code scanned from a different phone had no way to see it. Storing data
- * here, on the server, means ANY device that can reach this server (same
- * machine, same network, or a real deployment) can look up a business by
- * ID, which is what makes "scan QR on any phone" actually work.
- *
- * This is a lightweight, dependency-free store meant for local dev / a
- * single always-on Node process (e.g. `npm run start` on a VPS). It is
- * NOT suitable for serverless/edge deployments (Vercel, etc.) because
- * their filesystem is ephemeral and not shared across instances. For a
- * real production deployment, swap the functions below for a proper
- * database (Postgres, Supabase, PlanetScale, etc.) — the function
- * signatures are intentionally kept simple so that's a drop-in change.
+ * Maps a database row to the Business interface.
  */
-
-const DATA_DIR = path.join(process.cwd(), ".data");
-const DATA_FILE = path.join(DATA_DIR, "businesses.json");
-
-// Serializes reads/writes within a single process so concurrent requests
-// can't interleave and corrupt the JSON file.
-let queue: Promise<unknown> = Promise.resolve();
-function enqueue<T>(task: () => Promise<T>): Promise<T> {
-  const result = queue.then(task, task);
-  queue = result.catch(() => undefined);
-  return result;
+function mapFromRow(row: any): Business {
+  return {
+    id: row.id,
+    name: row.name,
+    type: row.type,
+    logoDataUrl: row.logo_data_url,
+    address: row.address,
+    googleReviewUrl: row.google_review_url,
+    description: row.description,
+    keywords: row.keywords || [],
+    createdAt: row.created_at,
+  };
 }
 
-async function readAll(): Promise<Record<string, Business>> {
-  try {
-    const raw = await fs.readFile(DATA_FILE, "utf-8");
-    return JSON.parse(raw) as Record<string, Business>;
-  } catch {
-    return {};
-  }
-}
-
-async function writeAll(data: Record<string, Business>): Promise<void> {
-  await fs.mkdir(DATA_DIR, { recursive: true });
-  const tmpFile = `${DATA_FILE}.${process.pid}.tmp`;
-  await fs.writeFile(tmpFile, JSON.stringify(data, null, 2), "utf-8");
-  await fs.rename(tmpFile, DATA_FILE);
+/**
+ * Maps a Business object to a database row.
+ */
+function mapToRow(business: Business): any {
+  return {
+    id: business.id,
+    name: business.name,
+    type: business.type,
+    logo_data_url: business.logoDataUrl,
+    address: business.address,
+    google_review_url: business.googleReviewUrl,
+    description: business.description,
+    keywords: business.keywords,
+    created_at: business.createdAt,
+  };
 }
 
 export async function saveBusinessServer(business: Business): Promise<Business> {
-  return enqueue(async () => {
-    const all = await readAll();
-    all[business.id] = business;
-    await writeAll(all);
-    return business;
-  });
+  const { data, error } = await supabase
+    .from("businesses")
+    .upsert(mapToRow(business))
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Error saving business to Supabase:", error);
+    throw new Error("Failed to save business");
+  }
+
+  return mapFromRow(data);
 }
 
 export async function getBusinessServer(id: string): Promise<Business | null> {
-  const all = await readAll();
-  return all[id] ?? null;
+  const { data, error } = await supabase
+    .from("businesses")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    if (error.code === 'PGRST116') {
+      // Record not found
+      return null;
+    }
+    console.error("Error fetching business from Supabase:", error);
+    return null;
+  }
+
+  return data ? mapFromRow(data) : null;
 }
 
 export async function listBusinessesServer(): Promise<Business[]> {
-  const all = await readAll();
-  return Object.values(all).sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+  const { data, error } = await supabase
+    .from("businesses")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error listing businesses from Supabase:", error);
+    return [];
+  }
+
+  return (data || []).map(mapFromRow);
 }
