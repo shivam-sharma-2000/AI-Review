@@ -10,10 +10,22 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PU
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+interface BusinessRow {
+  id: string;
+  name: string;
+  type: string;
+  logo_data_url: string | null;
+  address: string;
+  google_review_url: string;
+  description: string;
+  keywords: string[] | null;
+  created_at: string;
+}
+
 /**
  * Maps a database row to the Business interface.
  */
-function mapFromRow(row: any): Business {
+function mapFromRow(row: BusinessRow): Business {
   return {
     id: row.id,
     name: row.name,
@@ -30,7 +42,7 @@ function mapFromRow(row: any): Business {
 /**
  * Maps a Business object to a database row.
  */
-function mapToRow(business: Business): any {
+function mapToRow(business: Business): BusinessRow {
   return {
     id: business.id,
     name: business.name,
