@@ -1,4 +1,5 @@
 import type { Business } from "@/lib/types";
+import { apiFetch } from "@/lib/api-client";
 
 /**
  * Client-side helpers for business profiles.
@@ -14,10 +15,9 @@ import type { Business } from "@/lib/types";
 export type CreateBusinessInput = Omit<Business, "id" | "createdAt">;
 
 export async function createBusiness(input: CreateBusinessInput): Promise<Business> {
-  const res = await fetch("/api/businesses", {
+  const res = await apiFetch("/api/businesses", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(input),
+    body: input,
   });
 
   const data = await res.json().catch(() => ({}));
@@ -28,7 +28,9 @@ export async function createBusiness(input: CreateBusinessInput): Promise<Busine
 }
 
 export async function getBusiness(id: string): Promise<Business | null> {
-  const res = await fetch(`/api/businesses/${encodeURIComponent(id)}`);
+  const res = await apiFetch(`/api/businesses/${encodeURIComponent(id)}`, {
+    skipAuthErrorHandling: true,
+  });
   if (res.status === 404) return null;
 
   const data = await res.json().catch(() => ({}));
@@ -39,7 +41,7 @@ export async function getBusiness(id: string): Promise<Business | null> {
 }
 
 export async function listBusinesses(): Promise<Business[]> {
-  const res = await fetch("/api/businesses");
+  const res = await apiFetch("/api/businesses");
   const data = await res.json().catch(() => ([]));
   if (!res.ok) {
     throw new Error(data.error || "Couldn't load the businesses. Please try again.");

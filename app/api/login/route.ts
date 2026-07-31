@@ -61,10 +61,13 @@ export async function POST(req: NextRequest) {
     }, { status: 200 });
 
     // 3. Store JWT inside an HttpOnly cookie so the Next.js middleware can read it securely
+    const protocol = req.headers.get("x-forwarded-proto") || req.nextUrl.protocol || "";
+    const isSecureConnection = protocol.toLowerCase().startsWith("https");
+    
     response.cookies.set("sb-access-token", data.session.access_token, {
       path: "/",
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: isSecureConnection,
       sameSite: "lax",
       maxAge: data.session.expires_in,
     });
