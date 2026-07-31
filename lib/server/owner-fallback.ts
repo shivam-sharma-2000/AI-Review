@@ -18,8 +18,8 @@ export async function saveBusinessOwnerFallback(businessId: string, userId: stri
     
     owners[businessId] = userId;
     await fs.writeFile(OWNERS_FILE, JSON.stringify(owners, null, 2), "utf-8");
-  } catch (err: any) {
-    console.error("Failed to save business owner fallback:", err.message);
+  } catch (err) {
+    console.error("Failed to save business owner fallback:", err instanceof Error ? err.message : String(err));
   }
 }
 

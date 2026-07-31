@@ -61,8 +61,8 @@ export async function POST(req: NextRequest) {
           }
         }
       }
-    } catch (err: any) {
-      console.error("Error checking trial limits:", err.message);
+    } catch (err) {
+      console.error("Error checking trial limits:", err instanceof Error ? err.message : String(err));
       // Fallback: log error and proceed to not block review generations for customers
     }
   }
@@ -85,8 +85,8 @@ export async function POST(req: NextRequest) {
     if (businessOwnerId) {
       try {
         await incrementReviewCountServer(businessOwnerId);
-      } catch (incErr: any) {
-        console.error("Warning: Failed to increment review count:", incErr.message);
+      } catch (incErr) {
+        console.error("Warning: Failed to increment review count:", incErr instanceof Error ? incErr.message : String(incErr));
       }
     }
 

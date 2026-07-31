@@ -47,8 +47,8 @@ async function getMetadataProfile(userId: string): Promise<TrialProfile | null> 
       trialEnd,
       createdAt: user.created_at || new Date().toISOString(),
     };
-  } catch (err: any) {
-    console.error("Failed to read fallback metadata profile:", err.message);
+  } catch (err) {
+    console.error("Failed to read fallback metadata profile:", err instanceof Error ? err.message : String(err));
     return null;
   }
 }
@@ -81,8 +81,8 @@ export async function getUserProfileServer(userId: string): Promise<TrialProfile
       trialEnd: data.trial_end,
       createdAt: data.created_at,
     };
-  } catch (err: any) {
-    console.error("Fatal error fetching user profile:", err.message);
+  } catch (err) {
+    console.error("Fatal error fetching user profile:", err instanceof Error ? err.message : String(err));
     return await getMetadataProfile(userId);
   }
 }
@@ -146,8 +146,8 @@ export async function createUserProfileServer(userId: string): Promise<TrialProf
       trialEnd: data.trial_end,
       createdAt: data.created_at,
     };
-  } catch (err: any) {
-    console.error("Profile creation error, using metadata fallback:", err.message);
+  } catch (err) {
+    console.error("Profile creation error, using metadata fallback:", err instanceof Error ? err.message : String(err));
     // Final fallback to user metadata
     await supabase.auth.admin.updateUserById(userId, {
       user_metadata: {
@@ -202,8 +202,8 @@ export async function incrementReviewCountServer(userId: string): Promise<boolea
     }
 
     return true;
-  } catch (err: any) {
-    console.error("Exception during review count increment:", err.message);
+  } catch (err) {
+    console.error("Exception during review count increment:", err instanceof Error ? err.message : String(err));
     const { error: metaError } = await supabase.auth.admin.updateUserById(userId, {
       user_metadata: {
         reviewCount: profile.reviewCount + 1,

@@ -7,7 +7,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 
 export async function POST(req: NextRequest) {
-  let body: any;
+  let body: Record<string, string>;
   try {
     const raw = await req.text();
     if (!raw) {
@@ -71,8 +71,8 @@ export async function POST(req: NextRequest) {
 
     return response;
 
-  } catch (error: any) {
-    console.error("Unhandled login API error:", error);
+  } catch (error) {
+    console.error("Unhandled login API error:", error instanceof Error ? error.message : String(error));
     return NextResponse.json({ error: "An unexpected error occurred. Please try again." }, { status: 500 });
   }
 }

@@ -60,8 +60,8 @@ function LoginForm() {
         description: "Successfully logged into your account.",
       });
       router.push(redirectUrl);
-    } catch (err: any) {
-      toast.error(err.message || "Invalid credentials. Please try again.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Invalid credentials. Please try again.");
     } finally {
       setSubmitting(false);
     }

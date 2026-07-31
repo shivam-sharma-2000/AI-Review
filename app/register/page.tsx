@@ -67,8 +67,8 @@ function RegisterForm() {
       });
       const loginLink = `/login${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
       router.push(loginLink);
-    } catch (err: any) {
-      toast.error(err.message || "Failed to create account. Please try again.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to create account. Please try again.");
     } finally {
       setSubmitting(false);
     }
