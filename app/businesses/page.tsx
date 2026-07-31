@@ -32,9 +32,11 @@ import {
 } from "@/components/ui/select";
 import { BUSINESS_TYPES } from "@/lib/types";
 import { listBusinesses } from "@/lib/business-store";
+import { useAuth } from "@/components/auth-provider";
 import type { Business } from "@/lib/types";
 
 export default function BusinessesPage() {
+  const { user } = useAuth();
   const [businesses, setBusinesses] = React.useState<Business[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [search, setSearch] = React.useState("");
@@ -86,6 +88,42 @@ export default function BusinessesPage() {
               </Link>
             </Button>
           </div>
+
+          {/* Trial Usage Progress Bar */}
+          {user?.trialProfile && (
+            <Card className="rounded-2xl border-border shadow-sm mb-8 bg-gradient-to-r from-primary/5 via-primary/0 to-primary/0 overflow-hidden">
+              <CardContent className="p-6">
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                  <div className="space-y-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge className="bg-primary hover:bg-primary/95 text-primary-foreground font-semibold px-2 py-0.5 rounded-md text-xs">
+                        {user.trialProfile.plan === "free_trial" ? "Free Trial" : user.trialProfile.plan}
+                      </Badge>
+                      <span className="text-xs text-muted-foreground">
+                        Trial ends on {new Date(user.trialProfile.trialEnd).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <h2 className="text-lg font-semibold tracking-tight mt-1">AI Review Generations</h2>
+                    <p className="text-sm text-muted-foreground">
+                      You have used <span className="font-semibold text-foreground">{user.trialProfile.reviewCount}</span> of your <span className="font-semibold text-foreground">{user.trialProfile.reviewLimit}</span> free draft generations.
+                    </p>
+                  </div>
+                  <div className="w-full md:w-64 space-y-1.5 shrink-0">
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>{Math.round((user.trialProfile.reviewCount / user.trialProfile.reviewLimit) * 100)}% Used</span>
+                      <span>{user.trialProfile.reviewCount} / {user.trialProfile.reviewLimit}</span>
+                    </div>
+                    <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+                      <div 
+                        className="h-full bg-primary rounded-full transition-all duration-500 ease-out"
+                        style={{ width: `${Math.min(100, (user.trialProfile.reviewCount / user.trialProfile.reviewLimit) * 100)}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Search & Filter Bar */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center mb-6">

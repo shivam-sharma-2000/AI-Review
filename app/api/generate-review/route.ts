@@ -3,6 +3,8 @@ import type { GenerateReviewRequest } from "@/lib/types";
 import { AiProviderError } from "@/lib/ai/prompt";
 import { generateReviewWithOpenAI } from "@/lib/ai/openai-provider";
 import { generateReviewWithGemini } from "@/lib/ai/gemini-provider";
+import { getBusinessServer } from "@/lib/server/business-repo";
+import { getUserProfileServer, incrementReviewCountServer } from "@/lib/server/profile-repo";
 
 export const runtime = "nodejs";
 
@@ -13,8 +15,12 @@ function resolveProvider(): Provider {
   return raw === "gemini" ? "gemini" : "openai";
 }
 
+interface RequestWithBusinessId extends GenerateReviewRequest {
+  businessId?: string;
+}
+
 export async function POST(req: NextRequest) {
-  let body: GenerateReviewRequest;
+  let body: RequestWithBusinessId;
   try {
     const raw = await req.text();
     if (!raw) {
@@ -23,12 +29,42 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    body = JSON.parse(raw) as GenerateReviewRequest;
+    body = JSON.parse(raw) as RequestWithBusinessId;
   } catch {
     return NextResponse.json(
       { error: "Malformed request body — expected JSON." },
       { status: 400 }
     );
+  }
+
+  // 1. Enforce Free Trial limits if businessId is provided
+  let businessOwnerId: string | null = null;
+  if (body.businessId) {
+    try {
+      const business = await getBusinessServer(body.businessId);
+      if (!business) {
+        return NextResponse.json({ error: "Business not found." }, { status: 404 });
+      }
+
+      if (business.userId) {
+        businessOwnerId = business.userId;
+        const profile = await getUserProfileServer(business.userId);
+        if (profile) {
+          const isExpired = new Date(profile.trialEnd) < new Date();
+          const limitReached = profile.reviewCount >= profile.reviewLimit;
+
+          if (isExpired || limitReached) {
+            return NextResponse.json(
+              { error: "Upgrade Required" },
+              { status: 403 }
+            );
+          }
+        }
+      }
+    } catch (err: any) {
+      console.error("Error checking trial limits:", err.message);
+      // Fallback: log error and proceed to not block review generations for customers
+    }
   }
 
   try {
@@ -44,6 +80,15 @@ export async function POST(req: NextRequest) {
       provider === "gemini"
         ? await generateReviewWithGemini(body)
         : await generateReviewWithOpenAI(body);
+
+    // 2. Increment review count on database for business owner
+    if (businessOwnerId) {
+      try {
+        await incrementReviewCountServer(businessOwnerId);
+      } catch (incErr: any) {
+        console.error("Warning: Failed to increment review count:", incErr.message);
+      }
+    }
 
     return NextResponse.json({ review, provider });
   } catch (error) {

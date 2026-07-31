@@ -1,13 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { saveBusinessServer, listBusinessesServer } from "@/lib/server/business-repo";
+import { getAuthUser } from "@/lib/server/auth-helper";
 import { slugifyBusinessId } from "@/lib/slug";
 import type { Business } from "@/lib/types";
 
 export const runtime = "nodejs";
 
-type CreateBusinessInput = Omit<Business, "id" | "createdAt">;
+type CreateBusinessInput = Omit<Business, "id" | "createdAt" | "userId">;
 
 export async function POST(req: NextRequest) {
+  const user = await getAuthUser(req);
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized access — login required." }, { status: 401 });
+  }
+
   let input: CreateBusinessInput;
   try {
     const raw = await req.text();
@@ -40,6 +46,7 @@ export async function POST(req: NextRequest) {
       description: input.description ?? "",
       keywords: Array.isArray(input.keywords) ? input.keywords : [],
       createdAt: new Date().toISOString(),
+      userId: user.id, // Store owner's User ID
     };
 
     const saved = await saveBusinessServer(business);
@@ -53,9 +60,15 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const user = await getAuthUser(req);
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized access — login required." }, { status: 401 });
+  }
+
   try {
-    const list = await listBusinessesServer();
+    // List only businesses owned by this user
+    const list = await listBusinessesServer(user.id);
     return NextResponse.json(list);
   } catch (error) {
     console.error("list businesses error:", error);

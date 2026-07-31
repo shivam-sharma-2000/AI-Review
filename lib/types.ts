@@ -27,6 +27,7 @@ export interface Business {
   description: string;
   keywords: string[];
   createdAt: string;
+  userId?: string | null;
 }
 
 export interface ReviewFormInput {
@@ -37,6 +38,7 @@ export interface ReviewFormInput {
 }
 
 export interface GenerateReviewRequest extends ReviewFormInput {
+  businessId?: string;
   business: {
     name: string;
     type: string;
