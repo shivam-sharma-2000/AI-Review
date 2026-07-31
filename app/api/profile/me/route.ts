@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthUser } from "@/lib/server/auth-helper";
-import { getUserProfileServer } from "@/lib/server/profile-repo";
+import { getUserProfileServer, createUserProfileServer } from "@/lib/server/profile-repo";
 
 export const runtime = "nodejs";
 
@@ -14,7 +14,16 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const trialProfile = await getUserProfileServer(user.id);
+  let trialProfile = await getUserProfileServer(user.id);
+  
+  if (!trialProfile) {
+    try {
+      // Auto-initialize free trial plan for legacy accounts on first access
+      trialProfile = await createUserProfileServer(user.id);
+    } catch (err) {
+      console.error("Warning: Failed to auto-initialize trial profile for legacy user:", err);
+    }
+  }
 
   return NextResponse.json({
     id: user.id,

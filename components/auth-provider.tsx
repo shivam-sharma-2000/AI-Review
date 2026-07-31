@@ -54,10 +54,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   React.useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     checkProfile();
   }, [checkProfile]);
 
-  const login = async (email: string, password: string) => {
+  const login = React.useCallback(async (email: string, password: string) => {
     const response = await fetch("/api/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -70,10 +71,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     setToken(data.token);
-    setUser(data.user);
-  };
+    await checkProfile();
+  }, [checkProfile]);
 
-  const register = async (email: string, password: string) => {
+  const register = React.useCallback(async (email: string, password: string) => {
     const response = await fetch("/api/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -84,9 +85,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!response.ok) {
       throw new Error(data.error || "Registration request failed.");
     }
-  };
+  }, []);
 
-  const logout = async () => {
+  const logout = React.useCallback(async () => {
     try {
       await fetch("/api/logout", { method: "POST" });
     } catch (error) {
@@ -95,7 +96,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setToken(null);
       setUser(null);
     }
-  };
+  }, []);
 
   const value = React.useMemo(() => ({
     user,
@@ -104,7 +105,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     login,
     register,
     logout,
-  }), [user, loading]);
+  }), [user, loading, login, register, logout]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

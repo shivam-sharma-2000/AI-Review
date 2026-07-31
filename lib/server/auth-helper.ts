@@ -1,5 +1,5 @@
 import "server-only";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type User } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
@@ -8,7 +8,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
  * Extracts and verifies the user's JWT token from the Request headers or cookies.
  * Returns the Supabase User object if the token is valid, or null otherwise.
  */
-export async function getAuthUser(req: Request): Promise<any | null> {
+export async function getAuthUser(req: Request): Promise<User | null> {
   let token: string | null = null;
 
   // 1. Try to extract from Authorization Header (Bearer token)

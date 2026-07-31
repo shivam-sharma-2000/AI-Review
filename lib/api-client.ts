@@ -28,7 +28,8 @@ export function getToken(): string | null {
   return authToken;
 }
 
-interface ApiFetchOptions extends RequestInit {
+interface ApiFetchOptions extends Omit<RequestInit, "body"> {
+  body?: unknown;
   skipAuthErrorHandling?: boolean;
 }
 
@@ -54,7 +55,7 @@ export async function apiFetch(url: string, options: ApiFetchOptions = {}): Prom
     const response = await fetch(url, {
       ...options,
       headers,
-      body,
+      body: body as BodyInit | null | undefined,
     });
 
     // Handle session expiration automatically

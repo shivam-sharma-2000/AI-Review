@@ -1,6 +1,11 @@
 import "server-only";
 import { createClient } from "@supabase/supabase-js";
 import type { Business } from "@/lib/types";
+import {
+  saveBusinessOwnerFallback,
+  getBusinessOwnerFallback,
+  getBusinessIdsForUserFallback,
+} from "./owner-fallback";
 
 // Initialize Supabase client
 // For server-side operations, we ideally use a service role key to bypass RLS,
@@ -96,7 +101,6 @@ export async function saveBusinessServer(business: Business): Promise<Business> 
 
   // If business has owner ID, save the mapping locally as a persistent backup
   if (business.userId) {
-    const { saveBusinessOwnerFallback } = require("./owner-fallback");
     await saveBusinessOwnerFallback(business.id, business.userId);
   }
 
@@ -123,7 +127,6 @@ export async function getBusinessServer(id: string): Promise<Business | null> {
   
   // Fill owner ID from local fallback if missing in DB row
   if (business && !business.userId) {
-    const { getBusinessOwnerFallback } = require("./owner-fallback");
     business.userId = await getBusinessOwnerFallback(id);
   }
 
@@ -131,7 +134,7 @@ export async function getBusinessServer(id: string): Promise<Business | null> {
 }
 
 export async function listBusinessesServer(userId?: string): Promise<Business[]> {
-  let query = supabase.from("businesses").select("*");
+  const query = supabase.from("businesses").select("*");
   
   if (userId) {
     // Try querying by user_id column directly
@@ -141,7 +144,6 @@ export async function listBusinessesServer(userId?: string): Promise<Business[]>
       // Fallback: if user_id column does not exist, filter in-memory using local owner mappings
       if (error.message?.includes("user_id") || error.code === "PGRST204") {
         console.warn("user_id column not found in businesses table. Filtering list via fallback mapping.");
-        const { getBusinessIdsForUserFallback } = require("./owner-fallback");
         const userBizIds = await getBusinessIdsForUserFallback(userId);
 
         const allRes = await supabase
@@ -158,7 +160,6 @@ export async function listBusinessesServer(userId?: string): Promise<Business[]>
         
         // Populate owner ID on the returned profiles from mapping and filter
         for (const biz of mappedList) {
-          const { getBusinessOwnerFallback } = require("./owner-fallback");
           biz.userId = await getBusinessOwnerFallback(biz.id);
         }
 
@@ -183,7 +184,6 @@ export async function listBusinessesServer(userId?: string): Promise<Business[]>
   
   // Backfill owner IDs for all businesses from local storage
   for (const biz of list) {
-    const { getBusinessOwnerFallback } = require("./owner-fallback");
     biz.userId = await getBusinessOwnerFallback(biz.id);
   }
 

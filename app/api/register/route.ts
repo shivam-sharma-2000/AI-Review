@@ -8,7 +8,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 
 export async function POST(req: NextRequest) {
-  let body: any;
+  let body: Record<string, string>;
   try {
     const raw = await req.text();
     if (!raw) {
@@ -61,8 +61,8 @@ export async function POST(req: NextRequest) {
     // 2. Initialize a default Free Trial profile for the new user
     try {
       await createUserProfileServer(data.user.id);
-    } catch (profileErr: any) {
-      console.error("Warning: Failed to initialize trial profile:", profileErr.message);
+    } catch (profileErr) {
+      console.error("Warning: Failed to initialize trial profile:", profileErr instanceof Error ? profileErr.message : String(profileErr));
       // We don't fail the whole registration if profile creation fails (e.g. migration hasn't run yet),
       // but we log it. In production, we'd fail or retry.
     }
@@ -76,8 +76,8 @@ export async function POST(req: NextRequest) {
       }
     }, { status: 201 });
 
-  } catch (error: any) {
-    console.error("Unhandled registration API error:", error);
+  } catch (error) {
+    console.error("Unhandled registration API error:", error instanceof Error ? error.message : String(error));
     return NextResponse.json({ error: "An unexpected error occurred. Please try again." }, { status: 500 });
   }
 }

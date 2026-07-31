@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-export async function POST(req: NextRequest) {
+export async function POST() {
   const response = NextResponse.json({
     message: "Logged out successfully."
   }, { status: 200 });
