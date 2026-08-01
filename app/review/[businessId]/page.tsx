@@ -103,6 +103,7 @@ export default function ReviewPage() {
           liked: "",
           comments: "",
           language,
+          businessId: business.id, // Pass business ID for trial verification checks
           business: {
             name: business.name,
             type: business.type,
