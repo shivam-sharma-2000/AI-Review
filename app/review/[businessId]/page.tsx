@@ -50,6 +50,7 @@ export default function ReviewPage() {
   const [step, setStep] = React.useState<Step>("collect");
   const [rating, setRating] = React.useState(0);
   const [language, setLanguage] = React.useState<Language>("English");
+  const [comments, setComments] = React.useState("");
   const [manualDraft, setManualDraft] = React.useState("");
 
   const [generating, setGenerating] = React.useState(false);
@@ -101,7 +102,7 @@ export default function ReviewPage() {
         body: JSON.stringify({
           rating,
           liked: "",
-          comments: "",
+          comments: comments.trim(),
           language,
           businessId: business.id, // Pass business ID for trial verification checks
           business: {
@@ -165,6 +166,14 @@ export default function ReviewPage() {
 
   function handleContinueToGoogle() {
     if (!business) return;
+
+    // Automatically copy review to clipboard in case they forgot
+    copyToClipboard(review).then((success) => {
+      if (success) {
+        toast.success("Review automatically copied to clipboard!");
+      }
+    });
+
     window.open(business.googleReviewUrl, "_blank", "noopener,noreferrer");
   }
 
@@ -281,6 +290,17 @@ export default function ReviewPage() {
                                 ))}
                               </SelectContent>
                             </Select>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="comments">What did you like? (Optional)</Label>
+                            <Textarea
+                              id="comments"
+                              rows={3}
+                              placeholder="E.g., Great service, friendly staff, delicious food..."
+                              value={comments}
+                              onChange={(e) => setComments(e.target.value)}
+                            />
                           </div>
 
                           <Button
