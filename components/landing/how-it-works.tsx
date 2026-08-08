@@ -15,15 +15,15 @@ const STEPS = [
   },
   {
     icon: MessagesSquare,
-    title: "Customer answers 3 questions",
+    title: "Select language & description",
     description:
-      "A star rating, what they liked, and any extra comments — in their preferred language.",
+      "A star rating, what they liked — in their preferred language.",
   },
   {
     icon: Send,
     title: "They edit and post to Google",
     description:
-      "AI drafts a natural review from those answers. The customer edits it, then posts it themselves.",
+      "Drafts a natural review from those answers. The customer edits it, then posts it themselves.",
   },
 ];
 

@@ -29,7 +29,7 @@ export function Navbar() {
           <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <Sparkles className="size-4" />
           </span>
-          <span className="text-lg font-semibold tracking-tight">ReviewAI</span>
+          <span className="text-lg font-semibold tracking-tight">ReviewPilot</span>
         </Link>
 
         <nav className="hidden items-center gap-8 text-sm font-medium text-muted-foreground md:flex">

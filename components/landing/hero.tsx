@@ -21,12 +21,12 @@ export function Hero() {
           </div>
 
           <h1 className="mt-6 font-display text-4xl font-semibold leading-[1.08] tracking-tight text-balance sm:text-5xl lg:text-[3.4rem]">
-            Collect More Google Reviews with AI
+            Collect More Google Reviews
           </h1>
 
           <p className="mt-6 max-w-lg text-lg leading-relaxed text-muted-foreground">
-            Customers scan a QR code, answer a few questions, and receive an
-            AI-generated review draft they can edit before posting to Google.
+            Customers scan a QR code, answer what they liked, and receive an
+            generated review draft they can edit before posting to Google.
           </p>
 
           <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">

@@ -56,7 +56,7 @@ export function Features() {
             Everything you need to turn feedback into reviews
           </h2>
           <p className="mt-4 text-muted-foreground">
-            ReviewAI handles the awkward blank-page moment for your
+            ReviewPilot handles the awkward blank-page moment for your
             customers, so more of them actually finish leaving a review.
           </p>
         </div>

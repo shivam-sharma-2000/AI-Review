@@ -27,9 +27,9 @@ const FAQS = [
       "Customers can currently write their review in English, Hindi, Gujarati, or Marathi, with more languages planned.",
   },
   {
-    question: "Does ReviewAI post reviews on the customer's behalf?",
+    question: "Does ReviewPilot post reviews on the customer's behalf?",
     answer:
-      "No. ReviewAI only prepares a draft. The customer reviews it, edits it if they want, and then chooses to post it on Google themselves.",
+      "No. ReviewPilot only prepares a draft. The customer reviews it, edits it if they want, and then chooses to post it on Google themselves.",
   },
   {
     question: "Can I download the QR code for print?",
