@@ -62,7 +62,7 @@ export async function generateReviewWithGemini(
         contents: buildReviewPrompt(input),
         config: {
           systemInstruction: REVIEW_SYSTEM_PROMPT,
-          temperature: 0.7,
+          temperature: 0.9,
           maxOutputTokens: 800, // <--- Increased from 320 to allow 3-4 full sentences
         },
       });
