@@ -1,7 +1,7 @@
-# ReviewAI
+# ReviewPilot
 
 Collect more Google reviews by giving customers an AI-drafted starting
-point. Customers scan a QR code, answer three quick questions, and get a
+point. Customers scan a QR code, select language and write an optional short description, and get a
 natural, honest review draft they can edit before posting to Google.
 
 ## Tech stack
@@ -190,4 +190,4 @@ npm run lint     # eslint
   a real database before deploying to Vercel or similar.
 - No authentication - anyone with the setup link can create a business
   profile. Add auth before exposing `/setup` publicly.
-"# AI-Review" 
+"# ReviewPilot" 

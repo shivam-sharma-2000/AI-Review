@@ -216,7 +216,7 @@ export default function ReviewPage() {
     <div className="flex min-h-screen flex-col bg-muted/30">
       <header className="flex items-center justify-between px-4 py-4 sm:px-6">
         <Link href="/" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
-          <span className="font-display">ReviewAI</span>
+          <span className="font-display">ReviewPilot</span>
         </Link>
         <ThemeToggle />
       </header>

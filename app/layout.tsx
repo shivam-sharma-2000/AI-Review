@@ -24,7 +24,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ReviewAI — Collect More Google Reviews with AI",
+  title: "ReviewPilot — Collect More Google Reviews with AI",
   description:
     "Customers scan a QR code, answer a few questions, and receive an AI-generated review draft they can edit before posting to Google.",
 };

@@ -10,10 +10,10 @@ export function Footer() {
             <span className="flex size-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <Sparkles className="size-3.5" />
             </span>
-            <span className="text-base font-semibold tracking-tight">ReviewAI</span>
+            <span className="text-base font-semibold tracking-tight">ReviewPilot</span>
           </Link>
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-            Turn happy customers into 5-star Google reviews with an AI-drafted
+            Turn happy customers into 5-star Google reviews with an drafted
             starting point they edit and post themselves.
           </p>
         </div>
@@ -48,7 +48,7 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <a href="mailto:hello@reviewai.app" className="transition-colors hover:text-foreground">
+                <a href="mailto:88277shiv@gmail.com" className="transition-colors hover:text-foreground">
                   Contact
                 </a>
               </li>
@@ -69,7 +69,7 @@ export function Footer() {
       </div>
       <div className="border-t border-border">
         <p className="mx-auto max-w-6xl px-4 py-6 text-xs text-muted-foreground sm:px-6">
-          © {new Date().getFullYear()} ReviewAI. All rights reserved.
+          © {new Date().getFullYear()} ReviewPilot. All rights reserved.
         </p>
       </div>
     </footer>
