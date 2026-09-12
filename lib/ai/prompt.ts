@@ -41,7 +41,8 @@ ${guidance}
 Write the review in this language: ${language}.
 
 Rules:
-- Write a high-quality review consisting of exactly 4 to 5 lines/sentences.
+- CRITICAL: You MUST write a detailed review containing exactly 4 to 5 complete lines. 
+- Break down your thoughts: start with an opening impression, add 2-3 lines of specific details/elaboration, and finish with a closing thought.
 - Do not invent specific staff names, exact dates, prices, or fake events.
 - Reflect the tone implied by the star rating honestly (a 3-star review should sound balanced/mixed, whereas a 5-star review should sound enthusiastic).
 - Sound like a real, natural customer writing casually — avoid marketing jargon or press-release phrasing.
@@ -51,7 +52,7 @@ Rules:
 }
 
 export const REVIEW_SYSTEM_PROMPT =
-  "You are a helpful writing assistant that drafts well-structured, multi-sentence customer reviews based on ratings and feedback. You ensure reviews are detailed, authentic, and exactly 4-5 sentences long.";
+  "You are an expert writing assistant that drafts highly detailed, multi-sentence customer reviews. You are strictly programmed to output detailed paragraphs containing exactly 4 to 5 well-developed lines.";
 
 /** A normalized error thrown by either provider so the route can map it to an HTTP status + message. */
 export class AiProviderError extends Error {
