@@ -182,11 +182,11 @@ function RegisterForm() {
                     <Input
                       id="code"
                       type="text"
-                      placeholder="123456"
+                      placeholder="12345678"
                       value={verificationCode}
                       onChange={(e) => setVerificationCode(e.target.value)}
                       className="rounded-xl text-center text-lg tracking-widest font-mono"
-                      maxLength={6}
+                      maxLength={8}
                       aria-invalid={!!errors.code}
                     />
                     {errors.code && <p className="text-xs text-destructive text-center">{errors.code}</p>}
