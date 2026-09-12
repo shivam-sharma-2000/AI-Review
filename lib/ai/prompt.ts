@@ -41,13 +41,23 @@ ${guidance}
 Write the review in this language: ${language}.
 
 Rules:
-- CRITICAL: You MUST write a detailed review containing exactly 4 to 5 complete lines. 
-- Break down your thoughts: start with an opening impression, add 2-3 lines of specific details/elaboration, and finish with a closing thought.
+- CRITICAL LENGTH: Your review MUST be exactly 4 or 5 sentences long. Under no circumstances should you write a 1-sentence or 2-sentence review.
+- CRITICAL FORMATTING: You MUST separate every single sentence with a double line break (blank line) so they appear as separate paragraphs.
+
+Use this EXACT structure for your output:
+
+[First sentence: Overall impression and friendly opening]
+
+[Second sentence: Specific detail about the experience, staff, or product]
+
+[Third sentence: Another supporting detail or emotional response]
+
+[Fourth sentence: A strong closing thought or recommendation]
+
+- Do not include the bracketed text like "[First sentence:]". Just write the actual sentences separated by blank lines.
 - Do not invent specific staff names, exact dates, prices, or fake events.
-- Reflect the tone implied by the star rating honestly (a 3-star review should sound balanced/mixed, whereas a 5-star review should sound enthusiastic).
-- Sound like a real, natural customer writing casually — avoid marketing jargon or press-release phrasing.
-- Write ONLY the body text of the review. Do not include quotation marks, titles, headers, bullet points, or sign-offs.
-- Ensure this review draft is completely unique, original, and distinct. Vary the sentence structure, openings, and vocabulary. Do not use generic review cliches or templates.
+- Reflect the tone implied by the star rating honestly.
+- Sound like a real, natural customer writing casually — avoid marketing jargon.
 - Focus style variation for uniqueness: ${randomStyle}`;
 }
 
