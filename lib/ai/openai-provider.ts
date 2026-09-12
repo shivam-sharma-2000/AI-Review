@@ -19,7 +19,7 @@ export async function generateReviewWithOpenAI(
     const completion = await client.chat.completions.create({
       model: process.env.OPENAI_MODEL || "gpt-4o-mini",
       temperature: 0.9,
-      max_tokens: 260,
+      max_tokens: 600,
       messages: [
         { role: "system", content: REVIEW_SYSTEM_PROMPT },
         { role: "user", content: buildReviewPrompt(input) },
