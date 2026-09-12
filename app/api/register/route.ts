@@ -59,14 +59,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Failed to create user." }, { status: 400 });
     }
 
-    // 2. Initialize a default Free Trial profile for the new user
-    try {
-      await createUserProfileServer(data.user.id);
-    } catch (profileErr) {
-      console.error("Warning: Failed to initialize trial profile:", profileErr instanceof Error ? profileErr.message : String(profileErr));
-      // We don't fail the whole registration if profile creation fails (e.g. migration hasn't run yet),
-      // but we log it. In production, we'd fail or retry.
-    }
+    // Note: We deliberately do NOT create the trial profile here.
+    // We wait until their first successful login (which requires a confirmed email)
+    // to prevent spam accounts from flooding the trial database.
 
     return NextResponse.json({
       message: "User registered successfully.",

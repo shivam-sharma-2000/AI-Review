@@ -4,7 +4,7 @@ import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Sparkles, Loader2, MailCheck } from "lucide-react";
 
 import { useAuth } from "@/components/auth-provider";
 import { Navbar } from "@/components/navbar";
@@ -17,11 +17,14 @@ import { Label } from "@/components/ui/label";
 function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { register, isAuthenticated } = useAuth();
+  const { register, verifyEmail, isAuthenticated } = useAuth();
 
+  const [step, setStep] = React.useState<1 | 2>(1);
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [confirmPassword, setConfirmPassword] = React.useState("");
+  const [verificationCode, setVerificationCode] = React.useState("");
+  
   const [submitting, setSubmitting] = React.useState(false);
   const [errors, setErrors] = React.useState<Record<string, string>>({});
 
@@ -33,7 +36,7 @@ function RegisterForm() {
     }
   }, [isAuthenticated, router, redirectUrl]);
 
-  function validate() {
+  function validateStep1() {
     const next: Record<string, string> = {};
     if (!email.trim()) {
       next.email = "Email is required.";
@@ -55,20 +58,40 @@ function RegisterForm() {
     return Object.keys(next).length === 0;
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleRegister(e: React.FormEvent) {
     e.preventDefault();
-    if (!validate()) return;
+    if (!validateStep1()) return;
 
     setSubmitting(true);
     try {
       await register(email.trim(), password);
-      toast.success("Account created successfully!", {
-        description: "Please sign in with your new credentials.",
+      toast.success("Verification code sent!", {
+        description: "Please check your email for the 6-digit code.",
       });
-      const loginLink = `/login${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
-      router.push(loginLink);
+      setStep(2);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to create account. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function handleVerify(e: React.FormEvent) {
+    e.preventDefault();
+    if (!verificationCode.trim()) {
+      setErrors({ code: "Verification code is required." });
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      await verifyEmail(email.trim(), verificationCode.trim());
+      toast.success("Email verified successfully!", {
+        description: "Welcome to AI-Review!",
+      });
+      // The auth context will automatically redirect via the useEffect above
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Verification failed. Invalid or expired code.");
     } finally {
       setSubmitting(false);
     }
@@ -83,79 +106,124 @@ function RegisterForm() {
         <div className="w-full max-w-md">
           <div className="mb-6 text-center">
             <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-              <Sparkles className="size-6" />
+              {step === 1 ? <Sparkles className="size-6" /> : <MailCheck className="size-6" />}
             </div>
             <h1 className="mt-4 font-display text-3xl font-semibold tracking-tight">
-              Create an account
+              {step === 1 ? "Create an account" : "Verify your email"}
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              Sign up to set up your business reviews page
+              {step === 1 
+                ? "Sign up to set up your business reviews page" 
+                : `We sent a 6-digit code to ${email}`}
             </p>
           </div>
 
           <Card className="rounded-2xl border-border shadow-sm">
             <CardContent className="p-8">
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="name@company.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="rounded-xl"
-                    aria-invalid={!!errors.email}
-                  />
-                  {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+              {step === 1 ? (
+                <form onSubmit={handleRegister} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email Address</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="name@company.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="rounded-xl"
+                      aria-invalid={!!errors.email}
+                    />
+                    {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="rounded-xl"
+                      aria-invalid={!!errors.password}
+                    />
+                    {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword">Confirm Password</Label>
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      placeholder="••••••••"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="rounded-xl"
+                      aria-invalid={!!errors.confirmPassword}
+                    />
+                    {errors.confirmPassword && <p className="text-xs text-destructive">{errors.confirmPassword}</p>}
+                  </div>
+
+                  <Button type="submit" className="w-full mt-2 rounded-xl" disabled={submitting}>
+                    {submitting ? (
+                      <>
+                        <Loader2 className="mr-2 size-4 animate-spin" />
+                        Sending code...
+                      </>
+                    ) : (
+                      "Continue"
+                    )}
+                  </Button>
+                </form>
+              ) : (
+                <form onSubmit={handleVerify} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="code">Verification Code</Label>
+                    <Input
+                      id="code"
+                      type="text"
+                      placeholder="123456"
+                      value={verificationCode}
+                      onChange={(e) => setVerificationCode(e.target.value)}
+                      className="rounded-xl text-center text-lg tracking-widest font-mono"
+                      maxLength={6}
+                      aria-invalid={!!errors.code}
+                    />
+                    {errors.code && <p className="text-xs text-destructive text-center">{errors.code}</p>}
+                  </div>
+
+                  <Button type="submit" className="w-full mt-2 rounded-xl" disabled={submitting}>
+                    {submitting ? (
+                      <>
+                        <Loader2 className="mr-2 size-4 animate-spin" />
+                        Verifying...
+                      </>
+                    ) : (
+                      "Verify & Login"
+                    )}
+                  </Button>
+                  
+                  <div className="mt-4 text-center">
+                    <Button 
+                      type="button" 
+                      variant="link" 
+                      className="text-xs text-muted-foreground"
+                      onClick={() => setStep(1)}
+                    >
+                      Change email address
+                    </Button>
+                  </div>
+                </form>
+              )}
+
+              {step === 1 && (
+                <div className="mt-6 text-center text-sm text-muted-foreground">
+                  Already have an account?{" "}
+                  <Link href={loginLink} className="font-semibold text-primary hover:underline">
+                    Sign in
+                  </Link>
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="rounded-xl"
-                    aria-invalid={!!errors.password}
-                  />
-                  {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">Confirm Password</Label>
-                  <Input
-                    id="confirmPassword"
-                    type="password"
-                    placeholder="••••••••"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="rounded-xl"
-                    aria-invalid={!!errors.confirmPassword}
-                  />
-                  {errors.confirmPassword && <p className="text-xs text-destructive">{errors.confirmPassword}</p>}
-                </div>
-
-                <Button type="submit" className="w-full mt-2 rounded-xl" disabled={submitting}>
-                  {submitting ? (
-                    <>
-                      <Loader2 className="mr-2 size-4 animate-spin" />
-                      Creating account...
-                    </>
-                  ) : (
-                    "Create Account"
-                  )}
-                </Button>
-              </form>
-
-              <div className="mt-6 text-center text-sm text-muted-foreground">
-                Already have an account?{" "}
-                <Link href={loginLink} className="font-semibold text-primary hover:underline">
-                  Sign in
-                </Link>
-              </div>
+              )}
             </CardContent>
           </Card>
         </div>

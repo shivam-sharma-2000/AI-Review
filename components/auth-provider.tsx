@@ -23,6 +23,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string) => Promise<void>;
+  verifyEmail: (email: string, code: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -87,6 +88,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const verifyEmail = React.useCallback(async (email: string, code: string) => {
+    const response = await fetch("/api/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, code }),
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || "Verification failed.");
+    }
+
+    setToken(data.token);
+    await checkProfile();
+  }, [checkProfile]);
+
   const logout = React.useCallback(async () => {
     try {
       await fetch("/api/logout", { method: "POST" });
@@ -104,8 +121,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isAuthenticated: !!user,
     login,
     register,
+    verifyEmail,
     logout,
-  }), [user, loading, login, register, logout]);
+  }), [user, loading, login, register, verifyEmail, logout]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
