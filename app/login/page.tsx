@@ -28,6 +28,7 @@ function LoginForm() {
 
   React.useEffect(() => {
     if (isAuthenticated) {
+      router.refresh(); // Clear Next.js client cache so it sees the new cookie
       router.push(redirectUrl);
     }
   }, [isAuthenticated, router, redirectUrl]);
