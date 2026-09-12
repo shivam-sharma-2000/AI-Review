@@ -39,23 +39,24 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    // Initialize Supabase with Service Role Key to manage users administratively
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-    // Create the user using admin panel to auto-confirm email for frictionless demo flow
-    const { data, error } = await supabase.auth.admin.createUser({
+    // Use the anon key to trigger the standard sign-up flow which sends the confirmation email
+    const supabaseAnon = createClient(supabaseUrl, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "");
+    
+    const { data, error } = await supabaseAnon.auth.signUp({
       email: email.trim(),
       password: password,
-      email_confirm: true,
     });
 
     if (error) {
       console.error("Supabase user registration error:", error);
-      // Map common Supabase Auth errors
       if (error.status === 422 || error.message?.includes("already registered")) {
         return NextResponse.json({ error: "An account with this email already exists." }, { status: 409 });
       }
       return NextResponse.json({ error: error.message || "Failed to register user." }, { status: 400 });
+    }
+
+    if (!data.user) {
+      return NextResponse.json({ error: "Failed to create user." }, { status: 400 });
     }
 
     // 2. Initialize a default Free Trial profile for the new user
