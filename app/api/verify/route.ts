@@ -39,8 +39,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid or expired verification code." }, { status: 401 });
     }
 
-    if (!data.session) {
-      return NextResponse.json({ error: "Failed to create session." }, { status: 401 });
+    if (!data.session || !data.user) {
+      return NextResponse.json({ error: "Failed to create session or retrieve user." }, { status: 401 });
     }
 
     // Since the email is now verified, we create the trial profile!
