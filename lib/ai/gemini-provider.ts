@@ -63,7 +63,7 @@ export async function generateReviewWithGemini(
         config: {
           systemInstruction: REVIEW_SYSTEM_PROMPT,
           temperature: 0.7,
-          maxOutputTokens: 75,
+          maxOutputTokens: 150,
         },
       });
 
