@@ -30,8 +30,8 @@ function extractGoogleErrorMessage(error: unknown): string | undefined {
 }
 
 const FALLBACK_MODELS = [
-  "gemini-3.6-flash",
-  "gemini-2.0-flash",
+  "gemini-2.5-flash", // Use a current valid production flash model
+  "gemini-2.0-flash", // Keep as a reliable backup
 ];
 
 export async function generateReviewWithGemini(
@@ -62,8 +62,8 @@ export async function generateReviewWithGemini(
         contents: buildReviewPrompt(input),
         config: {
           systemInstruction: REVIEW_SYSTEM_PROMPT,
-          temperature: 0.9,
-          maxOutputTokens: 600, // <--- Increased to 600 tokens per user request
+          temperature: 0.7,
+          maxOutputTokens: 75,
         },
       });
 
